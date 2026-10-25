@@ -1,2 +1,8 @@
 # njjeckoniah-builds
-Projects and hands-on work I have done along my CS journey and skills development as a DevOps engineer
+
+I build cool stuff. Cool stuff that does not break. And when it breaks, I fix it. Fast.
+
+## Projects
+
+| Project | Track | Language | Pipeline |
+|---|---|---|---|
