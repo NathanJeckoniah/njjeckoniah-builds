@@ -6,11 +6,11 @@ on:
   push:
     branches: [main]
     paths:
-      - "devops/go-healthz-service/**"
+      - "projects/go-healthz-service/**"
       - ".github/workflows/go-healthz-service.yml"
   pull_request:
     paths:
-      - "devops/go-healthz-service/**"
+      - "projects/go-healthz-service/**"
       - ".github/workflows/go-healthz-service.yml"
 
 # allows the pipeline to onky read the files and nothing else. Its the default but I explicitly stated it 
@@ -30,13 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: devops/go-healthz-service
+        working-directory: projects/go-healthz-service
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-go@v7
         with:
-          go-version-file: devops/go-healthz-service/go.mod
+          go-version-file: projects/go-healthz-service/go.mod
           cache: false
 
       - name: Check formatting
@@ -73,7 +73,7 @@ jobs:
       # the source label links the image to my repo
       - uses: docker/build-push-action@v7
         with:
-          context: devops/go-healthz-service
+          context: projects/go-healthz-service
           push: true
           tags: |
             ${{ env.IMAGE }}:latest
