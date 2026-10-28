@@ -1,0 +1,82 @@
+name: go-healthz-service
+
+# this part of the pipeline runs on pushes to main and on pull requests
+#this part also only runs when a file in my folder is changed
+on:
+  push:
+    branches: [main]
+    paths:
+      - "devops/go-healthz-service/**"
+      - ".github/workflows/go-healthz-service.yml"
+  pull_request:
+    paths:
+      - "devops/go-healthz-service/**"
+      - ".github/workflows/go-healthz-service.yml"
+
+# allows the pipeline to onky read the files and nothing else. Its the default but I explicitly stated it 
+permissions:
+  contents: read
+
+# the image's registry. I write it once and it will be reused over and over
+# its written in smaller letters because it explicitly rejects capital letters
+env:
+  IMAGE: ghcr.io/nathanjeckoniah/go-healthz-service
+
+jobs:
+  # this forst part of the job runs within the projeft folder
+  # it gets the code, it checks the go version from go.mod, checks the formating, vets and perform checks
+  # everything stops if failure is encountered in any of these steps
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devops/go-healthz-service
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: devops/go-healthz-service/go.mod
+          cache: false
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+  # this second part of the job only runs when the first part was successful "it needs the test" to run
+  # it only runs on pushes to main and never to pull requests
+  # uts only task is to upload packages
+  publish:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      # this part logs into Github with Github's automatic , temporary token. no password is needed or stored anywhere
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # this part builds the image from project folder
+      # gives its two labels, "latest" and the commit message
+      # the source label links the image to my repo
+      - uses: docker/build-push-action@v7
+        with:
+          context: devops/go-healthz-service
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
