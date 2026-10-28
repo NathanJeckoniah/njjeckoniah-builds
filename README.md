@@ -1,8 +1,3 @@
 # njjeckoniah-builds
 
-I build cool stuff. Cool stuff that does not break. And when it breaks, I fix it. Fast.
-
-## Projects
-
-| Project | Track | Language | Pipeline |
-|---|---|---|---|
+Feel free to check out the files. For any inquiry, email me at nathanjjeckoniah@outlook.com
